@@ -10,6 +10,7 @@ before:
     - cargo install --locked cargo-edit
     - sh -c "if test '{{ .IsSnapshot }}' = 'false'; then cargo set-version '{{ .Version }}'; fi"
     - cargo install --locked cargo-zigbuild
+    - cargo install --locked cargo-xwin
     - cargo fetch --locked
     - cargo run --locked --bin generate_completions
 
@@ -30,7 +31,19 @@ builds:
       # macOS
       - x86_64-apple-darwin
       - aarch64-apple-darwin
-      # Windows
+
+  - id: nginxfmt-windows
+    builder: rust
+    binary: nginxfmt
+    tool: xwin
+    command: build
+    flags:
+      - --release
+      - --locked
+      - --bin=nginxfmt
+    env:
+      - XWIN_ARCH=x86,x86_64,aarch64
+    targets:
       - x86_64-pc-windows-msvc
       - i686-pc-windows-msvc
       - aarch64-pc-windows-msvc
