@@ -1,0 +1,79 @@
+.TH NGINXFMT 1 "July 2026" "nginxfmt 0.1.0" "User Commands"
+.SH NAME
+nginxfmt \- format nginx configuration files
+.SH SYNOPSIS
+.B nginxfmt
+[\fIOPTIONS\fR] [\fIFILE\fR]
+.SH DESCRIPTION
+.B nginxfmt
+reads an nginx configuration file, formats it according to configurable style
+rules, and writes the result to standard output by default.
+.PP
+When \fIFILE\fR is omitted or set to \fB\-\fR, input is read from standard input.
+.SH OPTIONS
+.TP
+.BR \-w ", " \-\-write
+Write formatted output back to \fIFILE\fR instead of stdout.
+.TP
+.B \-\-check
+Exit with status 1 if the input is not already formatted.
+.TP
+.BR \-\-config " " \fIPATH\fR
+Load formatting options from \fIPATH\fR instead of discovering \fB.nginxfmt.toml\fR.
+.TP
+.B \-\-tabs
+Indent with tab characters.
+.TP
+.B \-\-spaces
+Indent with spaces.
+.TP
+.BR \-\-indent-width " " \fIN\fR
+Number of spaces per indentation level. Default is 4.
+.TP
+.BR \-\-brace-style " " \fIstyle\fR
+Brace placement style: \fBsame_line\fR or \fBnext_line\fR.
+.TP
+.BR \-\-max-blank-lines " " \fIN\fR
+Maximum number of consecutive blank lines to preserve.
+.TP
+.BR \-\-trailing-newline " " \fIbool\fR
+Whether output should end with a trailing newline.
+.TP
+.BR \-\-preserve-inline-comments " " \fIbool\fR
+Whether inline comments should remain on the same line.
+.SH CONFIG FILE
+If present, \fB.nginxfmt.toml\fR is discovered by walking up from the input
+file directory. CLI flags override file values.
+.PP
+Example:
+.PP
+.EX
+indent_style = "spaces"
+indent_width = 4
+brace_style = "same_line"
+max_blank_lines = 1
+trailing_newline = true
+preserve_inline_comments = true
+.EE
+.SH EXAMPLES
+Format a file and print to stdout:
+.PP
+.EX
+nginxfmt conf/nginx.conf
+.EE
+.PP
+Format in place:
+.PP
+.EX
+nginxfmt --write conf/nginx.conf
+.EE
+.PP
+Check formatting in CI:
+.PP
+.EX
+nginxfmt --check conf/nginx.conf
+.EE
+.SH EXIT STATUS
+0 on success, non-zero on parse/config errors or when \fB\-\-check\fR fails.
+.SH SEE ALSO
+.BR nginx (8)

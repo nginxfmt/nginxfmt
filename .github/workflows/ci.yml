@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: Format
+        run: cargo fmt --check
+      - name: Generate completions
+        if: runner.os == 'Linux'
+        run: cargo run --bin generate_completions
+      - name: Test
+        run: cargo test --all-targets
+      - name: Clippy
+        if: runner.os == 'Linux'
+        run: cargo clippy --all-targets -- -D warnings
+      - name: Verify crate packaging
+        if: runner.os == 'Linux'
+        run: cargo package --no-verify
+
+  goreleaser-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: goreleaser/goreleaser-action@v6
+        with:
+          version: "~> v2"
+          args: check
+
+  bench-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Bench smoke
+        run: cargo bench --no-run

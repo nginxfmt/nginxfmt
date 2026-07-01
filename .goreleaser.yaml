@@ -1,0 +1,192 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+
+version: 2
+
+project_name: nginxfmt
+
+before:
+  hooks:
+    - rustup default stable
+    - cargo install --locked cargo-edit
+    - cmd: sh -c "if test '{{ .IsSnapshot }}' = 'false'; then cargo set-version '{{ .Version }}'; fi"
+    - cargo install --locked cargo-zigbuild
+    - cargo fetch --locked
+    - cargo run --locked --bin generate_completions
+
+builds:
+  - id: nginxfmt
+    builder: rust
+    binary: nginxfmt
+    flags:
+      - --release
+      - --locked
+      - --bin=nginxfmt
+    targets:
+      # Linux
+      - x86_64-unknown-linux-gnu
+      - i686-unknown-linux-gnu
+      - aarch64-unknown-linux-gnu
+      - armv7-unknown-linux-gnueabihf
+      # macOS
+      - x86_64-apple-darwin
+      - aarch64-apple-darwin
+      # Windows
+      - x86_64-pc-windows-msvc
+      - i686-pc-windows-msvc
+      - aarch64-pc-windows-msvc
+
+archives:
+  - id: default
+    formats: [tar.gz]
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else if eq .Arch "arm" }}armv7
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+
+universal_binaries:
+  - id: nginxfmt
+    replace: true
+
+checksum:
+  name_template: checksums.txt
+
+source:
+  enabled: true
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+
+release:
+  footer: >-
+    ---
+    Released with [GoReleaser](https://github.com/goreleaser/goreleaser).
+
+after:
+  hooks:
+    - cmd: cargo publish {{ if .IsSnapshot }}--dry-run{{ end }} --locked --quiet --no-verify
+
+nfpms:
+  - id: nginxfmt
+    package_name: nginxfmt
+    file_name_template: "{{ .ConventionalFileName }}"
+    maintainer: nginxfmt contributors
+    description: A fast, lean nginx configuration file formatter.
+    license: GPL-3.0-or-later
+    homepage: https://github.com/nginxfmt/nginxfmt
+    formats:
+      - deb
+      - rpm
+      - apk
+      - archlinux
+    contents:
+      - src: packaging/man/nginxfmt.1
+        dst: /usr/share/man/man1/nginxfmt.1
+        file_info:
+          mode: 0644
+      - src: packaging/completions/nginxfmt.bash
+        dst: /usr/share/bash-completion/completions/nginxfmt
+        file_info:
+          mode: 0644
+      - src: packaging/completions/nginxfmt.fish
+        dst: /usr/share/fish/vendor_completions.d/nginxfmt.fish
+        file_info:
+          mode: 0644
+      - src: packaging/completions/_nginxfmt
+        dst: /usr/share/zsh/vendor-completions/_nginxfmt
+        file_info:
+          mode: 0644
+
+brews:
+  - name: nginxfmt
+    repository:
+      owner: nginxfmt
+      name: homebrew-tap
+      token: "{{ .Env.GH_PAT }}"
+    directory: Formula
+    homepage: https://github.com/nginxfmt/nginxfmt
+    description: A fast, lean nginx configuration file formatter.
+    license: GPL-3.0-or-later
+    test: |
+      system "#{bin}/nginxfmt", "--version"
+
+scoops:
+  - name: nginxfmt
+    repository:
+      owner: nginxfmt
+      name: scoop-bucket
+      token: "{{ .Env.GH_PAT }}"
+    homepage: https://github.com/nginxfmt/nginxfmt
+    description: A fast, lean nginx configuration file formatter.
+    license: GPL-3.0-or-later
+
+winget:
+  - name: nginxfmt
+    publisher: nginxfmt
+    package_identifier: nginxfmt.nginxfmt
+    publisher_url: https://github.com/nginxfmt
+    publisher_support_url: https://github.com/nginxfmt/nginxfmt/issues/new
+    short_description: Format nginx configuration files.
+    license: GPL-3.0-or-later
+    homepage: https://github.com/nginxfmt/nginxfmt
+    repository:
+      owner: nginxfmt
+      name: winget
+      token: "{{ .Env.GH_PAT }}"
+
+chocolateys:
+  - name: nginxfmt
+    owners: nginxfmt
+    title: nginxfmt
+    authors: nginxfmt contributors
+    project_url: https://github.com/nginxfmt/nginxfmt
+    url_template: "https://github.com/nginxfmt/nginxfmt/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    license_url: https://github.com/nginxfmt/nginxfmt/blob/main/LICENSE
+    require_license_acceptance: false
+    project_source_url: https://github.com/nginxfmt/nginxfmt
+    docs_url: https://github.com/nginxfmt/nginxfmt#readme
+    bug_tracker_url: https://github.com/nginxfmt/nginxfmt/issues
+    tags: "nginx formatter config cli"
+    summary: Format nginx configuration files.
+    description: A fast, lean command-line tool that formats nginx configuration files.
+    release_notes: "https://github.com/nginxfmt/nginxfmt/releases/tag/v{{ .Version }}"
+    api_key: "{{ .Env.CHOCOLATEY_API_KEY }}"
+    source_repo: "https://push.chocolatey.org/"
+
+# TODO: Re-enable when AUR re-enables registrations
+# aurs:
+#   - name: nginxfmt-bin
+#     homepage: https://github.com/nginxfmt/nginxfmt
+#     description: A fast, lean nginx configuration file formatter.
+#     license: GPL-3.0-or-later
+#     maintainers:
+#       - "Paulo Souza <dev@paulorsf.com>"
+#     private_key: "{{ .Env.AUR_PRIVATE_KEY }}"
+#     git_url: "ssh://aur@aur.archlinux.org/nginxfmt-bin.git"
+#     provides:
+#       - nginxfmt
+
+snapcrafts:
+  - name: nginxfmt
+    summary: Format nginx configuration files
+    description: |
+      nginxfmt is a fast, lean command-line tool that formats nginx
+      configuration files with configurable indentation and brace style.
+    grade: stable
+    confinement: classic
+    license: GPL-3.0-or-later
+    publish: false
+    apps:
+      nginxfmt:
+        command: nginxfmt

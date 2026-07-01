@@ -1,0 +1,50 @@
+#compdef nginxfmt
+
+autoload -U is-at-least
+
+_nginxfmt() {
+    typeset -A opt_args
+    typeset -a _arguments_options
+    local ret=1
+
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
+    local context curcontext="$curcontext" state line
+    _arguments "${_arguments_options[@]}" : \
+'--config=[Path to a nginxfmt config file]:PATH:_files' \
+'--indent-width=[Number of spaces per indentation level]:N:_default' \
+'--brace-style=[Brace placement style]:BRACE_STYLE:(same_line next_line)' \
+'--max-blank-lines=[Maximum consecutive blank lines to preserve]:N:_default' \
+'--generate-completions=[Generate shell completions for the given shell]:GENERATE_COMPLETIONS:(bash fish zsh)' \
+'-w[Write formatted output back to the file]' \
+'--write[Write formatted output back to the file]' \
+'(-w --write)--check[Check whether the file is formatted; exit with status 1 if not]' \
+'(--spaces)--tabs[Use tabs for indentation]' \
+'(--tabs)--spaces[Use spaces for indentation]' \
+'--trailing-newline[Ensure output ends with a trailing newline]' \
+'(--trailing-newline)--no-trailing-newline[Omit the trailing newline at end of output]' \
+'--preserve-inline-comments[Preserve inline comments on the same line]' \
+'(--preserve-inline-comments)--no-preserve-inline-comments[Strip inline comments instead of preserving them]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+'::file -- Path to nginx config file. Reads from stdin when omitted or '\''-'\'':_files' \
+&& ret=0
+}
+
+(( $+functions[_nginxfmt_commands] )) ||
+_nginxfmt_commands() {
+    local commands; commands=()
+    _describe -t commands 'nginxfmt commands' commands "$@"
+}
+
+if [ "$funcstack[1]" = "_nginxfmt" ]; then
+    _nginxfmt "$@"
+else
+    compdef _nginxfmt nginxfmt
+fi

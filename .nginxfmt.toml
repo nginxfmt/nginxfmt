@@ -1,0 +1,6 @@
+indent_style = "spaces"
+indent_width = 4
+brace_style = "same_line"
+max_blank_lines = 1
+trailing_newline = true
+preserve_inline_comments = true
