@@ -35,9 +35,9 @@ builds:
   - id: nginxfmt-windows
     builder: rust
     binary: nginxfmt
-    command: xwin
+    tool: cargo-xwin
+    command: build
     flags:
-      - build
       - --release
       - --locked
       - --bin=nginxfmt
