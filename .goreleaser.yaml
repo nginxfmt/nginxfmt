@@ -104,18 +104,29 @@ nfpms:
         file_info:
           mode: 0644
 
-brews:
+homebrew_casks:
   - name: nginxfmt
     repository:
       owner: nginxfmt
       name: homebrew-tap
       token: "{{ .Env.GH_PAT }}"
-    directory: Formula
     homepage: https://github.com/nginxfmt/nginxfmt
     description: A fast, lean nginx configuration file formatter.
     license: GPL-3.0-or-later
-    test: |
-      system "#{bin}/nginxfmt", "--version"
+    binaries:
+      - nginxfmt
+    manpages:
+      - packaging/man/nginxfmt.1
+    completions:
+      bash: packaging/completions/nginxfmt.bash
+      fish: packaging/completions/nginxfmt.fish
+      zsh: packaging/completions/_nginxfmt
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/nginxfmt"]
+          end
 
 scoops:
   - name: nginxfmt
