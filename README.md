@@ -32,8 +32,8 @@ Download the archive for your OS/architecture from the [latest release](https://
 ### Homebrew (macOS / Linux)
 
 ```bash
-brew tap nginxfmt/tap
-brew install nginxfmt
+brew tap nginxfmt/homebrew-tap
+brew install --cask nginxfmt
 ```
 
 ### Scoop (Windows)
