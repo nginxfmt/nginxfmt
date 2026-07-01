@@ -30,10 +30,18 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y clang llvm lld
 
       - name: Install Chocolatey
+        env:
+          CHOCO_VERSION: "2.7.2"
         run: |
           sudo apt-get install -y mono-devel
-          curl -fsSL https://community.chocolatey.org/install.sh | sudo bash
-          echo "/opt/chocolatey/bin" >> "$GITHUB_PATH"
+          CHOCO_DIR=/opt/chocolatey
+          CHOCO_URL="https://github.com/chocolatey/choco/releases/download/${CHOCO_VERSION}/chocolatey.v${CHOCO_VERSION}.tar.gz"
+          sudo mkdir -p "$CHOCO_DIR"
+          curl -fsSL "$CHOCO_URL" -o /tmp/choco.tar.gz
+          sudo tar -xzf /tmp/choco.tar.gz -C "$CHOCO_DIR"
+          printf '#!/usr/bin/env bash\nexec mono %q "$@"\n' "$CHOCO_DIR/choco.exe" | sudo tee /usr/local/bin/choco >/dev/null
+          sudo chmod +x /usr/local/bin/choco
+          choco --version
 
       - name: Install Snapcraft
         run: sudo snap install snapcraft --classic
