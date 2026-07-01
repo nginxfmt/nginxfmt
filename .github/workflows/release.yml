@@ -33,15 +33,24 @@ jobs:
         env:
           CHOCO_VERSION: "2.7.2"
         run: |
+          set -euo pipefail
           sudo apt-get install -y mono-devel
           CHOCO_DIR=/opt/chocolatey
           CHOCO_URL="https://github.com/chocolatey/choco/releases/download/${CHOCO_VERSION}/chocolatey.v${CHOCO_VERSION}.tar.gz"
           sudo mkdir -p "$CHOCO_DIR"
           curl -fsSL "$CHOCO_URL" -o /tmp/choco.tar.gz
           sudo tar -xzf /tmp/choco.tar.gz -C "$CHOCO_DIR"
-          printf '#!/usr/bin/env bash\nexec mono %q "$@"\n' "$CHOCO_DIR/choco.exe" | sudo tee /usr/local/bin/choco >/dev/null
+          CHOCO_EXE="$CHOCO_DIR/choco.exe"
+          if [ ! -f "$CHOCO_EXE" ]; then
+            CHOCO_EXE="$CHOCO_DIR/net48/choco.exe"
+          fi
+          test -f "$CHOCO_EXE"
+          sudo mkdir -p "$CHOCO_DIR/lib" "$CHOCO_DIR/tools"
+          printf '#!/usr/bin/env bash\nexport ChocolateyInstall=%q\nexec mono %q "$@" --allow-unofficial\n' "$CHOCO_DIR" "$CHOCO_EXE" | sudo tee /usr/local/bin/choco >/dev/null
           sudo chmod +x /usr/local/bin/choco
+          echo "ChocolateyInstall=$CHOCO_DIR" >> "$GITHUB_ENV"
           choco --version
+          choco pack --help >/dev/null
 
       - name: Install Snapcraft
         run: sudo snap install snapcraft --classic
