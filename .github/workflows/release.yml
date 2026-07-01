@@ -40,4 +40,8 @@ jobs:
           AUR_PRIVATE_KEY: ${{ secrets.AUR_PRIVATE_KEY }}
           CHOCOLATEY_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY }}
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+
+      - name: Publish to crates.io
+        run: cargo publish --locked --quiet --no-verify
+        env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}

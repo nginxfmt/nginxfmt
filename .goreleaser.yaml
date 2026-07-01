@@ -8,7 +8,7 @@ before:
   hooks:
     - rustup default stable
     - cargo install --locked cargo-edit
-    - cmd: sh -c "if test '{{ .IsSnapshot }}' = 'false'; then cargo set-version '{{ .Version }}'; fi"
+    - sh -c "if test '{{ .IsSnapshot }}' = 'false'; then cargo set-version '{{ .Version }}'; fi"
     - cargo install --locked cargo-zigbuild
     - cargo fetch --locked
     - cargo run --locked --bin generate_completions
@@ -72,10 +72,6 @@ release:
   footer: >-
     ---
     Released with [GoReleaser](https://github.com/goreleaser/goreleaser).
-
-after:
-  hooks:
-    - cmd: cargo publish {{ if .IsSnapshot }}--dry-run{{ end }} --locked --quiet --no-verify
 
 nfpms:
   - id: nginxfmt
