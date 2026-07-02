@@ -11,24 +11,37 @@ categories = ["command-line-utilities", "development-tools"]
 readme = "README.md"
 default-run = "nginxfmt"
 
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
 [[bin]]
 name = "nginxfmt"
 path = "src/main.rs"
+required-features = ["cli"]
 
 [[bin]]
 name = "generate_completions"
 path = "src/bin/generate_completions.rs"
+required-features = ["cli"]
 
 [lib]
 name = "nginxfmt"
 path = "src/lib.rs"
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["cli"]
+cli = ["dep:clap", "dep:clap_complete"]
+wasm = ["dep:wasm-bindgen", "dep:console_error_panic_hook"]
 
 [dependencies]
-clap = { version = "4.5", features = ["derive", "env"] }
-clap_complete = "4.5"
+clap = { version = "4.5", features = ["derive", "env"], optional = true }
+clap_complete = { version = "4.5", optional = true }
 serde = { version = "1.0", features = ["derive"] }
 toml = "0.8"
 thiserror = "2.0"
+wasm-bindgen = { version = "0.2", optional = true }
+console_error_panic_hook = { version = "0.1", optional = true }
 
 [dev-dependencies]
 insta = { version = "1.41", features = ["glob"] }

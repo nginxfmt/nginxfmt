@@ -1,10 +1,13 @@
 pub mod ast;
+#[cfg(feature = "cli")]
 pub mod cli;
 pub mod config;
 pub mod error;
 pub mod formatter;
 pub mod lexer;
 pub mod parser;
+#[cfg(feature = "wasm")]
+pub mod wasm;
 
 pub use config::Config;
 pub use error::FormatError;
