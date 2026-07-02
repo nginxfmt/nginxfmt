@@ -550,7 +550,6 @@ dependencies = [
  "assert_cmd",
  "clap",
  "clap_complete",
- "console_error_panic_hook",
  "criterion",
  "insta",
  "predicates",
@@ -559,6 +558,14 @@ dependencies = [
  "tempfile",
  "thiserror",
  "toml",
+]
+
+[[package]]
+name = "nginxfmt-wasm"
+version = "0.1.0"
+dependencies = [
+ "console_error_panic_hook",
+ "nginxfmt",
  "wasm-bindgen",
 ]
 

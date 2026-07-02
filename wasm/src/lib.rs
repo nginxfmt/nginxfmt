@@ -1,6 +1,6 @@
 use wasm_bindgen::prelude::*;
 
-use crate::config::{BraceStyle, Config, IndentStyle};
+use nginxfmt::config::{BraceStyle, Config, IndentStyle};
 
 #[wasm_bindgen(start)]
 pub fn init() {
@@ -33,5 +33,5 @@ pub fn format(
         trailing_newline,
         preserve_inline_comments,
     };
-    crate::format_str(input, &config).map_err(|e| JsError::new(&e.to_string()))
+    nginxfmt::format_str(input, &config).map_err(|e| JsError::new(&e.to_string()))
 }
